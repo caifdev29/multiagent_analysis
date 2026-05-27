@@ -4,6 +4,13 @@ import numpy as np
 import plotly.express as px
 
 def get_outliers_mask(df):
+    """
+    Función auxiliar para identificar outliers utilizando el método de Rango Intercuartílico (IQR).
+    Devuelve una máscara booleana con las filas que contienen al menos un outlier.
+    
+    Variables configurables:
+    - factor_iqr (float): Actualmente en 1.5. Aumentar a 3.0 para detectar solo outliers extremos.
+    """
     num_cols = df.select_dtypes(include=np.number).columns
     mask = pd.Series(False, index=df.index)
     
@@ -19,6 +26,12 @@ def get_outliers_mask(df):
     return mask
 
 def run_cleaning_agent(df, original_df):
+    """
+    Agente 2: Limpieza y Transformación de Datos.
+    Se encarga de mostrar la proporción de datos "dañados" (nulos) y "anómalos" (outliers),
+    ofreciendo opciones de tratamiento automático o manual. Transforma las variables string a
+    formatos numéricos (codificación) para que puedan ser usados por el Agente 3.
+    """
     st.write("### Estado Actual del Dataset")
     
     # Calcular métricas

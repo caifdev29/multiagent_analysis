@@ -9,15 +9,21 @@ st.set_page_config(page_title="Data Analysis Multi-Agent", layout="wide")
 def main():
     st.title("Sistema Multiagente para Análisis de Datos")
     
-    st.sidebar.header("Carga de Datos")
-    uploaded_file = st.sidebar.file_uploader("Sube tu archivo (.csv, .xlsx, .data)", type=['csv', 'xlsx', 'data'])
+    # Agente Orquestador: Actúa como el controlador principal.
+    # Maneja la UI base, carga de archivos y sincroniza el estado (Session State) entre los 3 agentes.
     
+    # Usar un 'expander' permite ocultar el menú de carga haciendo clic en la flecha, limpiando la UI
+    with st.sidebar.expander("Carga de Datos", expanded=True):
+        uploaded_file = st.file_uploader("Sube tu archivo (.csv, .xlsx, .data)", type=['csv', 'xlsx', 'data'])
+        
+        has_header = True
+        if uploaded_file is not None:
+            # Opción para forzar lectura sin nombres de columnas en formatos propensos a ello
+            if uploaded_file.name.endswith(('.csv', '.data')):
+                has_header = st.checkbox("¿El archivo tiene cabecera?", value=True)
+                
     if uploaded_file is not None:
         try:
-            # Checkbox para archivos sin cabecera
-            has_header = True
-            if uploaded_file.name.endswith(('.csv', '.data')):
-                has_header = st.sidebar.checkbox("¿El archivo tiene cabecera?", value=True)
             
             # Detectar si cambió el archivo o la configuración de cabecera para re-procesar
             should_parse = False

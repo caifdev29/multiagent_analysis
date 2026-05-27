@@ -7,6 +7,15 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 def run_eda_agent(df):
+    """
+    Agente 1: Análisis Exploratorio de Datos (EDA).
+    Este agente se encarga de dar un resumen del dataset original (antes de la limpieza).
+    Genera estadísticas descriptivas numéricas y categóricas, y crea visualizaciones (boxplots, barras, heatmap).
+    
+    Variables configurables:
+    - cols_per_row (int): Controla cuántos boxplots se muestran por fila (actualmente 3).
+    - factor_iqr (float): Multiplicador del rango intercuartílico (IQR) para detectar outliers (típicamente 1.5).
+    """
     st.subheader("Información General de Datos")
     
     total_rows = df.shape[0]
@@ -28,38 +37,40 @@ def run_eda_agent(df):
     if not num_cols:
         st.info("No se encontraron variables numéricas en el dataset.")
     else:
-        for col in num_cols:
-            st.markdown(f"#### Variable: `{col}`")
+        cols_per_row = 3
+        for i in range(0, len(num_cols), cols_per_row):
+            row_cols = num_cols[i:i+cols_per_row]
+            st_cols = st.columns(len(row_cols))
             
-            # Dropna for calculations
-            series = df[col].dropna()
-            
-            if len(series) == 0:
-                st.warning(f"La columna {col} está vacía o contiene solo nulos.")
-                continue
-            
-            mean_val = series.mean()
-            median_val = series.median()
-            mode_val = series.mode().iloc[0] if not series.mode().empty else np.nan
-            
-            # Calcular outliers con IQR
-            Q1 = series.quantile(0.25)
-            Q3 = series.quantile(0.75)
-            IQR = Q3 - Q1
-            lower_bound = Q1 - 1.5 * IQR
-            upper_bound = Q3 + 1.5 * IQR
-            outliers_count = ((series < lower_bound) | (series > upper_bound)).sum()
-            
-            # Mostrar métricas
-            m1, m2, m3, m4 = st.columns(4)
-            m1.metric("Media", f"{mean_val:.2f}")
-            m2.metric("Mediana", f"{median_val:.2f}")
-            m3.metric("Moda", f"{mode_val:.2f}")
-            m4.metric("Potenciales Outliers", outliers_count)
-            
-            # Boxplot
-            fig = px.box(df, y=col, title=f"Boxplot de {col}")
-            st.plotly_chart(fig, use_container_width=True)
+            for j, col in enumerate(row_cols):
+                with st_cols[j]:
+                    st.markdown(f"#### `{col}`")
+                    
+                    series = df[col].dropna()
+                    if len(series) == 0:
+                        st.warning(f"La columna {col} está vacía o contiene solo nulos.")
+                        continue
+                    
+                    mean_val = series.mean()
+                    median_val = series.median()
+                    mode_val = series.mode().iloc[0] if not series.mode().empty else np.nan
+                    
+                    # Calcular outliers con IQR
+                    Q1 = series.quantile(0.25)
+                    Q3 = series.quantile(0.75)
+                    IQR = Q3 - Q1
+                    lower_bound = Q1 - 1.5 * IQR
+                    upper_bound = Q3 + 1.5 * IQR
+                    outliers_count = ((series < lower_bound) | (series > upper_bound)).sum()
+                    
+                    # Mostrar métricas en formato texto compacto
+                    st.markdown(f"**Media:** {mean_val:.2f} | **Mediana:** {median_val:.2f}")
+                    st.markdown(f"**Moda:** {mode_val:.2f} | **Outliers:** {outliers_count}")
+                    
+                    # Boxplot compacto
+                    fig = px.box(df, y=col, title=f"Boxplot de {col}", height=300)
+                    fig.update_layout(margin=dict(l=20, r=20, t=40, b=20))
+                    st.plotly_chart(fig, use_container_width=True)
             st.markdown("---")
             
     st.subheader("Análisis de Variables Categóricas")

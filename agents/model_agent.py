@@ -9,6 +9,17 @@ import plotly.express as px
 import plotly.graph_objects as go
 
 def run_model_agent(df, original_df):
+    """
+    Agente 3: Modelo Predictivo.
+    Se encarga de aislar la variable objetivo de las características numéricas (X)
+    y entrenar dos modelos distintos: Regresión Lineal y Árbol de Decisión.
+    Utiliza RMSE como métrica de evaluación y genera gráficos "Real vs Predicho".
+    
+    Variables configurables:
+    - test_size (float): Proporción del dataset usada para evaluación (actualmente 0.2 o 20%).
+    - random_state (int): Semilla para reproducibilidad de la división de datos y los modelos (actualmente 42).
+    - Hiperparámetros de los modelos: max_depth, min_samples_leaf para DecisionTreeRegressor.
+    """
     st.write("### Configuración del Modelo Predictivo")
     
     if df.empty:
@@ -96,7 +107,6 @@ def run_model_agent(df, original_df):
         st.plotly_chart(fig_rmse, use_container_width=True)
         
         st.write("### Gráficos de Dispersión: Valores Reales vs Predichos")
-        st.info("Nota: Reemplaza a la 'Matriz de Confusión' al tratarse de un problema de Regresión.")
         
         # Comparativa Scatter (Real vs Predicho)
         c1, c2 = st.columns(2)
